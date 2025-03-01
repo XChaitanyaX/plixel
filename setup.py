@@ -6,6 +6,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         'pandas',
+        'openpyxl',
+        'setuptools',
+        'matplotlib',
+        'seaborn',
     ],
     description="A package to analyse excel and csv files",
 )
