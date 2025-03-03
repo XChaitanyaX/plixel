@@ -8,6 +8,7 @@ class CsvAnalyser:
 
     def __init__(self, file_path: str):
         if file_path.endswith((".csv", ".data")):
+            self._path = file_path
             self.df = pd.read_csv(file_path)
         else:
             raise ValueError("Only .csv files are supported")
@@ -36,39 +37,79 @@ class CsvAnalyser:
 
         return {col: metrics[metric](col) for col in numeric_cols}
 
-    def plot_column(self, column: str):
+    def filter_rows(self, column: str, value):
         if column not in self.df.columns:
             raise ValueError(f"Column '{column}' not found in the DataFrame")
 
+        return self.df[self.df[column] == value]
+    
+    def plot_correlation(self):
         plt.figure(figsize=(10, 6))
-        sns.histplot(self.df[column])
-        plt.title(f"Histogram of {column}")
+        sns.heatmap(self.df.corr(), annot=True)
+        plt.title("Correlation Matrix")
+        
+        return plt.gcf()
+    
+    def merge_csv(self, file_path: str):
+        if file_path.endswith((".csv", ".data")):
+            df2 = pd.read_csv(file_path)
+        else:
+            raise ValueError("Only .csv files are supported")
+        
+        return pd.concat([self.df, df2], axis=0, ignore_index=True)
+    
+    def merge_dataframes(self, df2: pd.DataFrame):
+        return pd.concat([self.df, df2], axis=0, ignore_index=True)
+    
+    def change_to_init_state(self):
+        self.df = pd.read_csv(self._path)
+        
+    def to_csv(self, file_path: str):
+        self.df.to_csv(file_path, index=False)
+        
+    def to_excel(self, file_path: str):
+        self.df.to_excel(file_path, index=False)
+        
+    def to_json(self, file_path: str):
+        self.df.to_json(file_path, orient="records")
+        
+    def standardise_headers(self):
+        self.df.columns = [col.lower().replace(" ", "_") for col in self.df.columns]
+        
+    def remove_duplicates(self):
+        return self.df.drop_duplicates()
+    
+    def plot_column(self, column: str, plot_type: str):
+        if column not in self.df.columns:
+            raise ValueError(f"Column '{column}' not found in the DataFrame")
+
+        if plot_type == "histogram":
+            plt.figure(figsize=(10, 6))
+            sns.histplot(self.df[column])
+            plt.title(f"Histogram of {column}")
+        elif plot_type == "boxplot":
+            plt.figure(figsize=(10, 6))
+            sns.boxplot(self.df[column])
+            plt.title(f"Boxplot of {column}")
+        else:
+            raise ValueError(f"Unsupported plot type: {plot_type}")
 
         return plt.gcf()
-
-    # def plot_column_against_outcome(
-    #     self,
-    #     column: str,
-    #     outcome: str,
-    # ):
-    #     if column not in self.df.columns:
-    #         raise ValueError(f"Column '{column}' not found in the DataFrame")
-
-    #     if outcome not in self.df.columns:
-    #         raise ValueError(f"Column '{outcome}' not found in the DataFrame")
-
-    #     unique_values = self.df[outcome].unique()
+    
+    def get_row(self, index: int):
+        if index >= len(self.df):
+            raise IndexError(f"Index {index} out of bounds")
+        return self.df.iloc[index]
+    
+    def get_column(self, column: str):
+        if column not in self.df.columns:
+            raise ValueError(f"Column '{column}' not found in the DataFrame")
         
-    #     for value in unique_values:
-    #         sns.histplot(
-    #             self.df[column].groupby(value),
-    #             label=f"{outcome}={value}",
-    #             kde=True,
-    #         )
-
-    #     plt.figure(figsize=(10, 6))
-    #     plt.title(f"{column} vs {outcome}")
-    #     plt.legend()
-    #     plt.show()
-
-    #     return plt.gcf()
+        return self.df[column]
+    
+    def check_missing_values(self):
+        return self.df.isnull().sum().to_dict()
+    
+    def fill_missing_values(self, value):
+        return self.df.fillna(value)
+    
