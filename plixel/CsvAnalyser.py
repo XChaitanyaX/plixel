@@ -9,78 +9,89 @@ import os
 class CsvAnalyser:
     """
     A class that represents a CSV file analyser.
-    
+
     Attributes
     ----------
     file_path : str
         The path to the CSV file.
     df : pd.DataFrame
         The DataFrame representation of the CSV file.
-        
+
     Methods
     -------
     get_summary()
         Returns a summary of the DataFrame.
-        
+
     get_trends(metric: str)
         Returns the trends of the DataFrame.
-    
+
     filter_rows(column: str, value)
         Filters the rows of the DataFrame based on the given column and value.
-        
+
     plot_correlation()
         Plots the correlation matrix of the DataFrame.
-        
+
     merge_csv(file_path: str)
         Merges the DataFrame with another CSV file.
-    
+
     merge_dataframes(df2: pd.DataFrame)
         Merges the DataFrame with another DataFrame.
-    
+
     ...
-        
+
     Most of these functions are exact copies of the functions present in pandas.DataFrame.
-    
+
     They are just provided here for convenience of not typing too much.
-    
+
     Rather than having to type:
         CsvAnalyser.df.describe()
-        
+
     You can just type:
-        CsvAnalyser.describe()    
+        CsvAnalyser.describe()
+
+    >>> df = pd.DataFrame({
+    ...     "A": [1, 2, 3],
+    ...     "B": [4, 5, 6]
+    ... })
+    >>> analyser = CsvAnalyser(df=df)
+    >>> analyser.get_summary()
+    {'columns': ['A', 'B'], 'row_count': 3, 'stats': {'A': {'count': 3.0, 'mean': 2.0, 'std': 1.0, 'min': 1.0, '25%': 1.5, '50%': 2.0, '75%': 2.5, 'max': 3.0}, 'B': {'count': 3.0, 'mean': 5.0, 'std': 1.0, 'min': 4.0, '25%': 4.5, '50%': 5.0, '75%': 5.5, 'max': 6.0}}}
+    >>> analyser.get_trends()
+    {'A': np.float64(2.0), 'B': np.float64(5.0)}
+    
     """
 
-    def __init__(self, *, df: pd.DataFrame = None, file_path: str = None):
+    def __init__(self, *, df: pd.DataFrame = None, file_path: str | None = None):
         """
 
         Args:
+            df (DataFrame): the df to Analyse
             file_path (str): location of the csv or .data file
 
         Raises:
             ValueError: If none of the arguments are provided
             FileNotFoundError: If the file does not exist
-            
+
         """
-        if df:
+        if df is not None:
             self.df = df
-        
-        elif file_path.endswith((".csv", ".data")):
+
+        elif file_path is not None and file_path.endswith((".csv", ".data")):
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"File '{file_path}' not found")
             self._path = file_path
             self.df = pd.read_csv(file_path)
         else:
             raise ValueError("Must provide atleast one argument")
-        
-    
+
     def get_summary(self):
         """
         Returns a summary of the DataFrame.
-        
+
         lists the columns, row count and statistics of the DataFrame
-        
+
         Returns: A dictionary containing the columns, row count and statistics of the DataFrame
-        
+
         """
         return {
             "columns": list(self.df.columns),
@@ -124,7 +135,7 @@ class CsvAnalyser:
 
         Args:
             column (str): column name to filter
-            value (_type_): value to filter
+            value (int | str): value to filter
 
         Raises:
             ValueError: If the column is not found in the DataFrame
@@ -138,6 +149,13 @@ class CsvAnalyser:
         return self.df[self.df[column] == value]
 
     def plot_correlation(self):
+        """
+        Plot the correlation matrix of the DataFrame.
+        Excludes null and N/A values
+
+        Returns:
+            Figure: the plot of the correlation matrix
+        """
         plt.figure(figsize=(10, 6))
         sns.heatmap(self.df.corr(), annot=True)
         plt.title("Correlation Matrix")
@@ -156,6 +174,11 @@ class CsvAnalyser:
         return pd.concat([self.df, df2], axis=0, ignore_index=True)
 
     def change_to_init_state(self):
+        """
+        Changes the DataFrame to the initial state.
+
+        Similar to reinitialising the object to the original DataFrame.
+        """
         self.df = pd.read_csv(self._path)
 
     def to_csv(self, file_path: str):
@@ -168,12 +191,30 @@ class CsvAnalyser:
         self.df.to_json(file_path, orient="records")
 
     def standardise_headers(self):
+        """
+        Standardises the headers of the DataFrame.
+
+        lowercases the columns of the df and replaces spaces with underscores.
+        """
         self.df.columns = [col.lower().replace(" ", "_") for col in self.df.columns]
 
     def remove_duplicates(self):
         return self.df.drop_duplicates()
 
     def plot_column(self, column: str, plot_type: str):
+        """
+
+        Args:
+            column (str): column name to plot
+            plot_type (str): type of the plot
+
+        Raises:
+            ValueError: if column not found in the DataFrame or unsupported plot type
+
+        Returns:
+            Figure: the plot of the column
+        """
+
         if column not in self.df.columns:
             raise ValueError(f"Column '{column}' not found in the DataFrame")
 
@@ -206,7 +247,7 @@ class CsvAnalyser:
 
     def fill_missing_values(self, value):
         return self.df.fillna(value)
-    
+
     def drop_missing_values(self):
         self.df.dropna(inplace=True)
         return self.df
@@ -216,6 +257,3 @@ class CsvAnalyser:
             raise ValueError(f"Column '{column}' not found in the DataFrame")
 
         return self.df.drop(columns=column)
-    
-    
-    
