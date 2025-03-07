@@ -1,4 +1,3 @@
-from typing import override
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -74,12 +73,14 @@ class CsvAnalyser:
 
         """
         if df is not None:
+            self._df = df
             self.df = df
 
         elif file_path is not None and file_path.endswith((".csv", ".data")):
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"File '{file_path}' not found")
             self._path = file_path
+            self._df = pd.read_csv(file_path)
             self.df = pd.read_csv(file_path)
         else:
             raise ValueError("Must provide atleast one argument")
@@ -112,6 +113,15 @@ class CsvAnalyser:
 
         Returns:
             dict: A dictionary containing the trends of the DataFrame
+            
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3],
+        ...     "B": [4, 5, 6]
+        ... })
+        >>> analyser = CsvAnalyser(df=df)
+        >>> analyser.get_trends()
+        {'A': np.float64(2.0), 'B': np.float64(5.0)}
+        
         """
         numeric_cols = self.df.select_dtypes(include="number").columns
 
@@ -142,6 +152,15 @@ class CsvAnalyser:
 
         Returns:
             df.DataFrame: DataFrame with filtered rows
+            
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3],
+        ...     "B": [4, 5, 6]
+        ... })
+        >>> analyser = CsvAnalyser(df=df)
+        >>> analyser.filter_rows("A", 2)
+           A  B
+        1  2  5
         """
         if column not in self.df.columns:
             raise ValueError(f"Column '{column}' not found in the DataFrame")
@@ -155,6 +174,16 @@ class CsvAnalyser:
 
         Returns:
             Figure: the plot of the correlation matrix
+            
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3],
+        ...     "B": [4, 5, 6]
+        ... })
+        >>> analyser = CsvAnalyser(df=df)
+        >>> plot = analyser.plot_correlation()
+        >>> type(plot)
+        <class 'matplotlib.figure.Figure'>
+        
         """
         plt.figure(figsize=(10, 6))
         sns.heatmap(self.df.corr(), annot=True)
@@ -163,6 +192,20 @@ class CsvAnalyser:
         return plt.gcf()
 
     def merge_csv(self, file_path: str):
+        """
+
+        Args:
+            file_path (str): path to the csv file to merge
+
+        Raises:
+            ValueError: if the file is not a .csv file
+            FileNotFoundError: if the file does not exist
+
+        Returns:
+            pd.DataFrame: the merged DataFrame
+        """
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File '{file_path}' not found")
         if file_path.endswith((".csv", ".data")):
             df2 = pd.read_csv(file_path)
         else:
@@ -171,6 +214,15 @@ class CsvAnalyser:
         return pd.concat([self.df, df2], axis=0, ignore_index=True)
 
     def merge_dataframes(self, df2: pd.DataFrame):
+        """
+        merge the DataFrame with another DataFrame.
+
+        Args:
+            df2 (pd.DataFrame): the DataFrame to merge
+
+        Returns:
+            pd.DataFrame: the merged DataFrame
+        """
         return pd.concat([self.df, df2], axis=0, ignore_index=True)
 
     def change_to_init_state(self):
@@ -179,7 +231,7 @@ class CsvAnalyser:
 
         Similar to reinitialising the object to the original DataFrame.
         """
-        self.df = pd.read_csv(self._path)
+        self.df = self._df
 
     def to_csv(self, file_path: str):
         self.df.to_csv(file_path, index=False)
