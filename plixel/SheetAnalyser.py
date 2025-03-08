@@ -13,6 +13,12 @@ class SheetAnalyser:
             raise ValueError("Only .xlsx files are supported")
 
     def get_summary(self):
+        """
+        Returns a summary of the DataFrame including columns, row count, and statistics.
+
+        Returns:
+            dict: Summary of the DataFrame
+        """
         return {
             "columns": list(self.df.columns),
             "row_count": len(self.df),
@@ -20,6 +26,18 @@ class SheetAnalyser:
         }
 
     def get_trends(self, metric="mean"):
+        """
+        Returns the trend of the selected metric for all numeric columns in the DataFrame.
+
+        Args:
+            metric (str, optional): the trend of the given metric. Defaults to "mean".
+
+        Raises:
+            ValueError: if trend is not supported.
+
+        Returns:
+            dict: Trend of the selected metric for all numeric columns
+        """
         numeric_cols = self.df.select_dtypes(include="number").columns
 
         metrics = {
@@ -54,6 +72,18 @@ class SheetAnalyser:
         return self.df[column].value_counts().to_dict()
 
     def plot_histogram(self, columns: list):
+        """
+        Plots histograms for the selected columns.
+
+        Args:
+            columns (list): List of columns to plot histograms for.
+        Raises:
+            ValueError: if any of the columns are not found in the DataFrame.
+
+        Returns:
+            Figure: Histograms for the selected columns
+
+        """
         if not all(col in self.df.columns for col in columns):
             missing_cols = [col for col in columns if col not in self.df.columns]
             raise ValueError(f"Columns not found in the DataFrame: {missing_cols}")
@@ -72,6 +102,12 @@ class SheetAnalyser:
         return plt.gcf()
 
     def plot_correlation_heatmap(self):
+        """
+        Plots a heatmap of the correlation matrix for the numeric columns in the DataFrame.
+
+        Returns:
+            Figure: Correlation Heatmap for the DataFrame
+        """
         fig, ax = plt.subplots(figsize=(10, 8))
         corr_matrix = self.df.corr(numeric_only=True)
         sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
@@ -82,6 +118,20 @@ class SheetAnalyser:
     def plot_business_units_over_years(
         self, *, business_col: str, business_unit: str, year: int
     ):
+        """
+        Plots the sales trend for a given business unit over the years.
+
+        Args:
+            business_col (str): business column name
+            business_unit (str): business unit name
+            year (int): year to plot the trend for
+
+        Raises:
+            ValueError: if business_col, business_unit, or year are not found in the DataFrame.
+
+        Returns:
+            Figure: Sales Trend for the given business unit over the years
+        """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
 
@@ -116,6 +166,20 @@ class SheetAnalyser:
     def plot_barchart_for_each_month(
         self, *, business_col: str, business_unit: str, year: int
     ):
+        """
+        Plots the average sales for each month in a given year for a given business unit.
+
+        Args:
+            business_col (str): business column name
+            business_unit (str): business unit name
+            year (int): year to plot the trend for
+
+        Raises:
+            ValueError: if business_col, business_unit, or year are not found in the DataFrame.
+
+        Returns:
+            Figure: Average Sales for the given business unit in the given year
+        """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
 

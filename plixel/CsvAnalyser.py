@@ -57,7 +57,7 @@ class CsvAnalyser:
     {'columns': ['A', 'B'], 'row_count': 3, 'stats': {'A': {'count': 3.0, 'mean': 2.0, 'std': 1.0, 'min': 1.0, '25%': 1.5, '50%': 2.0, '75%': 2.5, 'max': 3.0}, 'B': {'count': 3.0, 'mean': 5.0, 'std': 1.0, 'min': 4.0, '25%': 4.5, '50%': 5.0, '75%': 5.5, 'max': 6.0}}}
     >>> analyser.get_trends()
     {'A': np.float64(2.0), 'B': np.float64(5.0)}
-    
+
     """
 
     def __init__(self, *, df: pd.DataFrame = None, file_path: str | None = None):
@@ -113,7 +113,7 @@ class CsvAnalyser:
 
         Returns:
             dict: A dictionary containing the trends of the DataFrame
-            
+
         >>> df = pd.DataFrame({
         ...     "A": [1, 2, 3],
         ...     "B": [4, 5, 6]
@@ -121,7 +121,7 @@ class CsvAnalyser:
         >>> analyser = CsvAnalyser(df=df)
         >>> analyser.get_trends()
         {'A': np.float64(2.0), 'B': np.float64(5.0)}
-        
+
         """
         numeric_cols = self.df.select_dtypes(include="number").columns
 
@@ -152,7 +152,7 @@ class CsvAnalyser:
 
         Returns:
             df.DataFrame: DataFrame with filtered rows
-            
+
         >>> df = pd.DataFrame({
         ...     "A": [1, 2, 3],
         ...     "B": [4, 5, 6]
@@ -174,7 +174,7 @@ class CsvAnalyser:
 
         Returns:
             Figure: the plot of the correlation matrix
-            
+
         >>> df = pd.DataFrame({
         ...     "A": [1, 2, 3],
         ...     "B": [4, 5, 6]
@@ -183,7 +183,7 @@ class CsvAnalyser:
         >>> plot = analyser.plot_correlation()
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
-        
+
         """
         plt.figure(figsize=(10, 6))
         sns.heatmap(self.df.corr(), annot=True)
@@ -247,6 +247,13 @@ class CsvAnalyser:
         Standardises the headers of the DataFrame.
 
         lowercases the columns of the df and replaces spaces with underscores.
+
+        >>> header = ["First Name", "Last Name", "Age"]
+        >>> df = pd.DataFrame(columns=header)
+        >>> analyser = CsvAnalyser(df=df)
+        >>> analyser.standardise_headers()
+        >>> df.columns
+        Index(['first_name', 'last_name', 'age'], dtype='object')
         """
         self.df.columns = [col.lower().replace(" ", "_") for col in self.df.columns]
 
@@ -265,6 +272,15 @@ class CsvAnalyser:
 
         Returns:
             Figure: the plot of the column
+
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3],
+        ...     "B": [4, 5, 6]
+        ... })
+        >>> analyser = CsvAnalyser(df=df)
+        >>> plot = analyser.plot_column("A", "histogram")
+        >>> type(plot)
+        <class 'matplotlib.figure.Figure'>
         """
 
         if column not in self.df.columns:
