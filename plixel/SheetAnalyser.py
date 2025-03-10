@@ -3,27 +3,19 @@ import calendar
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from openpyxl import Workbook
 
 
 class SheetAnalyser:
-    def __init__(self, file_path: str):
-        if file_path.endswith((".xlsx", ".xls")):
-            self.df = pd.read_excel(file_path)
+    def __init__(self, *, file_path: str | None = None, workbook: Workbook = None, names: str | None = None):
+        if workbook is not None:
+            self.df = pd.read_excel(workbook, sheet_name=names)
+            self.active_sheet = workbook.active
+        elif file_path is not None and file_path.endswith((".xlsx", ".xls")):
+            self.df = pd.read_excel(file_path, sheet_name=names)
+            self.active_sheet = pd.read_excel(file_path, sheet_name=None)
         else:
-            raise ValueError("Only .xlsx files are supported")
-
-    def get_summary(self):
-        """
-        Returns a summary of the DataFrame including columns, row count, and statistics.
-
-        Returns:
-            dict: Summary of the DataFrame
-        """
-        return {
-            "columns": list(self.df.columns),
-            "row_count": len(self.df),
-            "stats": self.df.describe(include="all").to_dict(),
-        }
+            raise ValueError("Invalid file path or workbook")
 
     def get_trends(self, metric="mean"):
         """
