@@ -85,21 +85,6 @@ class CsvAnalyser:
         else:
             raise ValueError("Must provide atleast one argument")
 
-    def get_summary(self):
-        """
-        Returns a summary of the DataFrame.
-
-        lists the columns, row count and statistics of the DataFrame
-
-        Returns: A dictionary containing the columns, row count and statistics of the DataFrame
-
-        """
-        return {
-            "columns": list(self.df.columns),
-            "row_count": len(self.df),
-            "stats": self.df.describe(include="all").to_dict(),
-        }
-
     def get_trends(self, metric="mean"):
         """
         Returns the trends of the DataFrame for numeric columns.
@@ -222,6 +207,24 @@ class CsvAnalyser:
 
         Returns:
             pd.DataFrame: the merged DataFrame
+
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3],
+        ...     "B": [4, 5, 6]
+        ... })
+        >>> df2 = pd.DataFrame({
+        ...     "A": [7, 8, 9],
+        ...     "B": [10, 11, 12]
+        ... })
+        >>> analyser = CsvAnalyser(df=df)
+        >>> analyser.merge_dataframes(df2)
+           A   B
+        0  1   4
+        1  2   5
+        2  3   6
+        3  7  10
+        4  8  11
+        5  9  12
         """
         return pd.concat([self.df, df2], axis=0, ignore_index=True)
 
@@ -230,6 +233,19 @@ class CsvAnalyser:
         Changes the DataFrame to the initial state.
 
         Similar to reinitialising the object to the original DataFrame.
+
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3],
+        ...     "B": [4, 5, 6]
+        ... })
+        >>> analyser = CsvAnalyser(df=df)
+        >>> analyser.df = pd.DataFrame({
+        ...     "A": [7, 8, 9],
+        ...     "B": [10, 11, 12]
+        ... })
+        >>> analyser.change_to_init_state()
+        >>> analyser.df.equals(df)
+        True
         """
         self.df = self._df
 
