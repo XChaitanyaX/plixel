@@ -7,13 +7,23 @@ from openpyxl import Workbook
 
 
 class SheetAnalyser:
-    def __init__(self, *, file_path: str | None = None, workbook: Workbook = None, names: str | None = None):
+    def __init__(
+        self,
+        *,
+        file_path: str | None = None,
+        workbook: Workbook = None,
+        names: str | None = None,
+    ):
         if workbook is not None:
             self.df = pd.read_excel(workbook, sheet_name=names)
             self.active_sheet = workbook.active
         elif file_path is not None and file_path.endswith((".xlsx", ".xls")):
-            self.df = pd.read_excel(file_path, sheet_name=names)
-            self.active_sheet = pd.read_excel(file_path, sheet_name=None)
+            self.active_sheet = pd.read_excel(file_path, sheet_name=names)
+            if not isinstance(self.active_sheet, pd.DataFrame):
+                self.sheets = list(self.active_sheet.keys())
+                self.df = self.active_sheet[self.sheets[0]]
+            else:
+                self.df = self.active_sheet
         else:
             raise ValueError("Invalid file path or workbook")
 
@@ -156,7 +166,7 @@ class SheetAnalyser:
         return plt.gcf()
 
     def plot_barchart_for_each_month(
-        self, *, business_col: str, business_unit: str, year: int
+        self, *, metric: str = "mean", business_col: str, business_unit: str, year: int
     ):
         """
         Plots the average sales for each month in a given year for a given business unit.
@@ -190,15 +200,29 @@ class SheetAnalyser:
         months = tuple(calendar.month_abbr[1:])
 
         yearly_data = self.df[self.df["Year"] == year]
+        metrics = ("mean", "median", "max", "min", "std", "var")
+
+        metric_functions = {
+            "mean": lambda month: yearly_data[month].mean(),
+            "median": lambda month: yearly_data[month].median(),
+            "max": lambda month: yearly_data[month].max(),
+            "min": lambda month: yearly_data[month].min(),
+            "std": lambda month: yearly_data[month].std(),
+            "var": lambda month: yearly_data[month].var(),
+        }
 
         for month in months:
-            monthly_data_avg = yearly_data[month].mean()
+            monthly_data_avg = None
+            if metric in metrics:
+                monthly_data_avg = metric_functions[metric](month)
+            else:
+                raise ValueError(f"Unsupported metric: {metric}")
             plt.bar(month, monthly_data_avg, label=month)
 
         plt.title(f"Average Sales for {business_unit} in {year}")
         plt.xlabel("Month")
-        plt.ylabel("Average Sales")
-        # plt.legend()
+        plt.ylabel(f"{metric.capitalize()} Sales")
+        plt.legend()
         plt.tight_layout()
 
         return plt.gcf()
