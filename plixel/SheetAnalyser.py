@@ -1,4 +1,5 @@
 import calendar
+import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -7,23 +8,75 @@ from openpyxl import Workbook
 
 
 class SheetAnalyser:
+    """A class to analyse Excel sheets.
+
+    Attributes
+    -----------
+    df : DataFrame
+        The DataFrame containing the data from the Excel sheet.
+    active_sheet : DataFrame
+        The active sheet in the Excel workbook.
+    sheets : list
+        List of sheet names in the Excel workbook.
+
+    Methods:
+    --------
+    get_trends(metric: str = "mean") -> dict:
+        Returns the trend of the selected metric for all numeric columns in the DataFrame.
+
+    missing_values() -> dict:
+        Returns the number of missing values in each column.
+
+    correlation_matrix() -> dict:
+        Returns the correlation matrix for the numeric columns in the DataFrame.
+
+    ...
+
+    Most of the methods are derived from pd.DataFrame class so that there is no need to type more code.
+
+    >>> df = pd.DataFrame({
+    ...     "A": [1, 2, 3, 4, 5],
+    ...     "B": [6, 7, 8, 9, 10],
+    ...     "C": [11, 12, 13, 14, 15]
+    ... })
+    >>> sheet_analyser = SheetAnalyser(df=df)
+    >>> type(sheet_analyser)
+    <class 'SheetAnalyser.SheetAnalyser'>
+    """
+
     def __init__(
         self,
         *,
         file_path: str | None = None,
+        df: pd.DataFrame | None = None,
         workbook: Workbook = None,
         names: str | None = None,
     ):
+        """Initializes the SheetAnalyser class.
+
+        Args:
+            file_path (str | None, optional): path of the xl file. Defaults to None.
+            df (pd.DataFrame | None, optional): DataFrame representing the xl sheet. Defaults to None.
+            workbook (Workbook, optional): a WorkBook from openpyxl. Defaults to None.
+            names (str | None, optional): names of the columns. Mention only if column names are not present in the provided sheet. Defaults to None.
+        Raises:
+            ValueError: if none of the arguments are provided or given file_path does not exist.
+    
+        """
         if workbook is not None:
             self.df = pd.read_excel(workbook, sheet_name=names)
             self.active_sheet = workbook.active
         elif file_path is not None and file_path.endswith((".xlsx", ".xls")):
+            if not os.path.exists(file_path):
+                raise ValueError(f"File not found: {file_path}")
             self.active_sheet = pd.read_excel(file_path, sheet_name=names)
             if not isinstance(self.active_sheet, pd.DataFrame):
                 self.sheets = list(self.active_sheet.keys())
                 self.df = self.active_sheet[self.sheets[0]]
             else:
                 self.df = self.active_sheet
+        elif df is not None and isinstance(df, pd.DataFrame):
+            self.df = df
         else:
             raise ValueError("Invalid file path or workbook")
 
@@ -39,6 +92,15 @@ class SheetAnalyser:
 
         Returns:
             dict: Trend of the selected metric for all numeric columns
+            
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3, 4, 5],
+        ...     "B": [6, 7, 8, 9, 10],
+        ...     "C": [11, 12, 13, 14, 15]
+        ... })
+        >>> sheet_analyser = SheetAnalyser(df=df)
+        >>> sheet_analyser.get_trends()
+        {'A': np.float64(3.0), 'B': np.float64(8.0), 'C': np.float64(13.0)}
         """
         numeric_cols = self.df.select_dtypes(include="number").columns
 
@@ -68,11 +130,6 @@ class SheetAnalyser:
     def unique_values(self):
         return {col: self.df[col].unique().tolist() for col in self.df.columns}
 
-    def value_counts(self, column: str):
-        if column not in self.df.columns:
-            raise ValueError(f"Column '{column}' not found in the DataFrame")
-        return self.df[column].value_counts().to_dict()
-
     def plot_histogram(self, columns: list):
         """
         Plots histograms for the selected columns.
@@ -85,6 +142,16 @@ class SheetAnalyser:
         Returns:
             Figure: Histograms for the selected columns
 
+        >>> df = pd.DataFrame({
+        ...     "A": [1, 2, 3, 4, 5],
+        ...     "B": [6, 7, 8, 9, 10],
+        ...     "C": [11, 12, 13, 14, 15]
+        ... })
+        >>> sheet_analyser = SheetAnalyser(df=df)
+        >>> plot = sheet_analyser.plot_histogram(columns=["A", "B", "C"])
+        >>> type(plot)
+        <class 'matplotlib.figure.Figure'>
+        >>> assert plt.get_fignums() != 0
         """
         if not all(col in self.df.columns for col in columns):
             missing_cols = [col for col in columns if col not in self.df.columns]
@@ -133,6 +200,12 @@ class SheetAnalyser:
 
         Returns:
             Figure: Sales Trend for the given business unit over the years
+            
+        >>> sheet = SheetAnalyser(file_path="Sample Data.xlsx")
+        >>> plot = sheet.plot_business_units_over_years(business_col="Businees Unit", business_unit="Software", year=2012)
+        >>> type(plot)
+        <class 'matplotlib.figure.Figure'>
+        >>> assert plt.get_fignums() != 0
         """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
@@ -152,9 +225,10 @@ class SheetAnalyser:
         months = tuple(calendar.month_abbr[1:])
 
         yearly_data = self.df[self.df["Year"] == year]
+        yearly_data_for_business_unit = yearly_data[yearly_data[business_col] == business_unit]
 
         for month in months:
-            monthly_data = yearly_data[month].values
+            monthly_data = yearly_data_for_business_unit[month].values
             plt.plot(monthly_data, label=month)
 
         plt.title(f"Sales Trend for {business_unit} in {year}")
@@ -181,6 +255,12 @@ class SheetAnalyser:
 
         Returns:
             Figure: Average Sales for the given business unit in the given year
+            
+        >>> sheet = SheetAnalyser(file_path="Sample Data.xlsx")
+        >>> plot = sheet.plot_barchart_for_each_month(business_col="Businees Unit", business_unit="Software", year=2012)
+        >>> type(plot)
+        <class 'matplotlib.figure.Figure'>
+        >>> assert plt.get_fignums() != 0
         """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
@@ -212,6 +292,8 @@ class SheetAnalyser:
         }
 
         for month in months:
+            if month not in yearly_data.columns:
+                continue
             monthly_data_avg = None
             if metric in metrics:
                 monthly_data_avg = metric_functions[metric](month)
