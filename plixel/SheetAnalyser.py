@@ -185,7 +185,9 @@ class SheetAnalyser:
 
         return fig
 
-    def plot_business_units_over_years(self, *, business_col: str, business_unit: str) -> plt.Figure:
+    def plot_business_units_over_years(
+        self, *, business_col: str, business_unit: str
+    ) -> plt.Figure:
         """
         Plots the sales trend for a given business unit over the years.
 
