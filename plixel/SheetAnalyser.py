@@ -1,4 +1,5 @@
 import calendar
+from enum import unique
 import os
 
 import matplotlib.pyplot as plt
@@ -61,7 +62,7 @@ class SheetAnalyser:
             names (str | None, optional): names of the columns. Mention only if column names are not present in the provided sheet. Defaults to None.
         Raises:
             ValueError: if none of the arguments are provided or given file_path does not exist.
-    
+
         """
         if workbook is not None:
             self.df = pd.read_excel(workbook, sheet_name=names)
@@ -92,7 +93,7 @@ class SheetAnalyser:
 
         Returns:
             dict: Trend of the selected metric for all numeric columns
-            
+
         >>> df = pd.DataFrame({
         ...     "A": [1, 2, 3, 4, 5],
         ...     "B": [6, 7, 8, 9, 10],
@@ -130,7 +131,7 @@ class SheetAnalyser:
     def unique_values(self):
         return {col: self.df[col].unique().tolist() for col in self.df.columns}
 
-    def plot_histogram(self, columns: list):
+    def plot_histogram(self, columns: list) -> plt.Figure:
         """
         Plots histograms for the selected columns.
 
@@ -170,7 +171,7 @@ class SheetAnalyser:
 
         return plt.gcf()
 
-    def plot_correlation_heatmap(self):
+    def plot_correlation_heatmap(self) -> plt.Figure:
         """
         Plots a heatmap of the correlation matrix for the numeric columns in the DataFrame.
 
@@ -184,9 +185,7 @@ class SheetAnalyser:
 
         return fig
 
-    def plot_business_units_over_years(
-        self, *, business_col: str, business_unit: str, year: int
-    ):
+    def plot_business_units_over_years(self, *, business_col: str, business_unit: str) -> plt.Figure:
         """
         Plots the sales trend for a given business unit over the years.
 
@@ -200,9 +199,9 @@ class SheetAnalyser:
 
         Returns:
             Figure: Sales Trend for the given business unit over the years
-            
+
         >>> sheet = SheetAnalyser(file_path="Sample Data.xlsx")
-        >>> plot = sheet.plot_business_units_over_years(business_col="Businees Unit", business_unit="Software", year=2012)
+        >>> plot = sheet.plot_business_units_over_years(business_col="Businees Unit", business_unit="Software")
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
         >>> assert plt.get_fignums() != 0
@@ -218,21 +217,27 @@ class SheetAnalyser:
         if "Year" not in self.df.columns:
             raise ValueError("Column 'Year' not found in the DataFrame")
 
-        if year not in self.df["Year"].unique():
-            raise ValueError(f"Year '{year}' not found in the DataFrame")
-
         plt.figure(figsize=(12, 8))
+        unique_years = self.df["Year"].unique()
+        unique_years.sort()
+
         months = tuple(calendar.month_abbr[1:])
 
-        yearly_data = self.df[self.df["Year"] == year]
-        yearly_data_for_business_unit = yearly_data[yearly_data[business_col] == business_unit]
-
-        for month in months:
-            monthly_data = yearly_data_for_business_unit[month].values
-            plt.plot(monthly_data, label=month)
+        yearly_expenses = []
+        for year in unique_years:
+            yearly_data = self.df[self.df["Year"] == year]
+            yearly_data_for_business_unit = yearly_data[
+                yearly_data[business_col] == business_unit
+            ]
+            yearly_expenses = sum(
+                yearly_data_for_business_unit[month].sum()
+                for month in months
+                if month in yearly_data_for_business_unit.columns
+            )
+            plt.bar(year, yearly_expenses, label=year)
 
         plt.title(f"Sales Trend for {business_unit} in {year}")
-        plt.xlabel("Month")
+        plt.xlabel("Year")
         plt.ylabel("Sales")
         plt.legend()
         plt.tight_layout()
@@ -241,7 +246,7 @@ class SheetAnalyser:
 
     def plot_barchart_for_each_month(
         self, *, metric: str = "mean", business_col: str, business_unit: str, year: int
-    ):
+    ) -> plt.Figure:
         """
         Plots the average sales for each month in a given year for a given business unit.
 
@@ -255,7 +260,7 @@ class SheetAnalyser:
 
         Returns:
             Figure: Average Sales for the given business unit in the given year
-            
+
         >>> sheet = SheetAnalyser(file_path="Sample Data.xlsx")
         >>> plot = sheet.plot_barchart_for_each_month(business_col="Businees Unit", business_unit="Software", year=2012)
         >>> type(plot)
