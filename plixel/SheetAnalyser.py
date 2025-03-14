@@ -1,11 +1,11 @@
 import calendar
-from enum import unique
 import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from openpyxl import Workbook
+from typing import Any
 
 
 class SheetAnalyser:
@@ -52,7 +52,7 @@ class SheetAnalyser:
         df: pd.DataFrame | None = None,
         workbook: Workbook = None,
         names: str | None = None,
-    ):
+    ) -> None:
         """Initializes the SheetAnalyser class.
 
         Args:
@@ -81,7 +81,7 @@ class SheetAnalyser:
         else:
             raise ValueError("Invalid file path or workbook")
 
-    def get_trends(self, metric="mean"):
+    def get_trends(self, metric="mean") -> dict[str | Any, pd.Series | Any]:
         """
         Returns the trend of the selected metric for all numeric columns in the DataFrame.
 
@@ -202,7 +202,7 @@ class SheetAnalyser:
         Returns:
             Figure: Sales Trend for the given business unit over the years
 
-        >>> sheet = SheetAnalyser(file_path="Sample Data.xlsx")
+        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
         >>> plot = sheet.plot_business_units_over_years(business_col="Businees Unit", business_unit="Software")
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
@@ -263,7 +263,7 @@ class SheetAnalyser:
         Returns:
             Figure: Average Sales for the given business unit in the given year
 
-        >>> sheet = SheetAnalyser(file_path="Sample Data.xlsx")
+        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
         >>> plot = sheet.plot_barchart_for_each_month(business_col="Businees Unit", business_unit="Software", year=2012)
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
