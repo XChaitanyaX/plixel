@@ -11,3 +11,4 @@ tests/verify.py
 build/
 .vscode/
 .pytest_cache/
+.coverage
