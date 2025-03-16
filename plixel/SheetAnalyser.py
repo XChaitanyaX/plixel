@@ -1,11 +1,11 @@
 import calendar
 import os
+from typing import Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from openpyxl import Workbook
-from typing import Any
 
 
 class SheetAnalyser:
@@ -17,10 +17,10 @@ class SheetAnalyser:
         The DataFrame containing the data from the Excel sheet.
     active_sheet : DataFrame
         The active sheet in the Excel workbook.
-    sheets : list
+    sheets : list[str]
         List of sheet names in the Excel workbook.
 
-    Methods:
+    Methods
     --------
     get_trends(metric: str = "mean") -> dict:
         Returns the trend of the selected metric for all numeric columns in the DataFrame.
@@ -62,22 +62,32 @@ class SheetAnalyser:
             names (str | None, optional): names of the columns. Mention only if column names are not present in the provided sheet. Defaults to None.
         Raises:
             ValueError: if none of the arguments are provided or given file_path does not exist.
-
+        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+        >>> sheet = SheetAnalyser(df=pd.DataFrame())
+        >>> sheet = SheetAnalyser()
+        Traceback (most recent call last):
+            ...
+        ValueError: Invalid file path or workbook
         """
         if workbook is not None:
             self.df = pd.read_excel(workbook, sheet_name=names)
             self.active_sheet = workbook.active
+
         elif file_path is not None and file_path.endswith((".xlsx", ".xls")):
             if not os.path.exists(file_path):
                 raise ValueError(f"File not found: {file_path}")
+
             self.active_sheet = pd.read_excel(file_path, sheet_name=names)
             if not isinstance(self.active_sheet, pd.DataFrame):
                 self.sheets = list(self.active_sheet.keys())
                 self.df = self.active_sheet[self.sheets[0]]
+
             else:
                 self.df = self.active_sheet
+
         elif df is not None and isinstance(df, pd.DataFrame):
             self.df = df
+
         else:
             raise ValueError("Invalid file path or workbook")
 
@@ -177,6 +187,12 @@ class SheetAnalyser:
 
         Returns:
             Figure: Correlation Heatmap for the DataFrame
+
+        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+        >>> plot = sheet.plot_correlation_heatmap()
+        >>> type(plot)
+        <class 'matplotlib.figure.Figure'>
+        >>> assert plt.get_fignums() != 0
         """
         fig, ax = plt.subplots(figsize=(10, 8))
         corr_matrix = self.df.corr(numeric_only=True)
@@ -301,11 +317,14 @@ class SheetAnalyser:
         for month in months:
             if month not in yearly_data.columns:
                 continue
+            
             monthly_data_avg = None
             if metric in metrics:
                 monthly_data_avg = metric_functions[metric](month)
+                
             else:
                 raise ValueError(f"Unsupported metric: {metric}")
+            
             plt.bar(month, monthly_data_avg, label=month)
 
         plt.title(f"Average Sales for {business_unit} in {year}")
