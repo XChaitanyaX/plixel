@@ -25,13 +25,11 @@ class SheetAnalyser:
     get_trends(metric: str = "mean") -> dict:
         Returns the trend of the selected metric for all numeric columns in the DataFrame.
 
-    missing_values() -> dict:
-        Returns the number of missing values in each column.
-
-    correlation_matrix() -> dict:
-        Returns the correlation matrix for the numeric columns in the DataFrame.
-
-    ...
+    plot_histogram(columns: list) -> plt.Figure:
+        Plots histograms for the selected columns.
+        
+    plot_correlation_heatmap() -> plt.Figure:
+        Plots a heatmap of the correlation matrix for the numeric columns in the DataFrame.
 
     Most of the methods are derived from pd.DataFrame class so that there is no need to type more code.
 
@@ -50,8 +48,7 @@ class SheetAnalyser:
         *,
         file_path: str | None = None,
         df: pd.DataFrame | None = None,
-        workbook: Workbook = None,
-        names: str | None = None,
+        workbook: Workbook | None = None,
     ) -> None:
         """Initializes the SheetAnalyser class.
 
@@ -70,20 +67,14 @@ class SheetAnalyser:
         ValueError: Invalid file path or workbook
         """
         if workbook is not None:
-            self.df = pd.read_excel(workbook, sheet_name=names)
+            self.df = pd.read_excel(workbook)
             self.active_sheet = workbook.active
 
         elif file_path is not None and file_path.endswith((".xlsx", ".xls")):
             if not os.path.exists(file_path):
                 raise ValueError(f"File not found: {file_path}")
 
-            self.active_sheet = pd.read_excel(file_path, sheet_name=names)
-            if not isinstance(self.active_sheet, pd.DataFrame):
-                self.sheets = list(self.active_sheet.keys())
-                self.df = self.active_sheet[self.sheets[0]]
-
-            else:
-                self.df = self.active_sheet
+            self.df = pd.read_excel(file_path)
 
         elif df is not None and isinstance(df, pd.DataFrame):
             self.df = df
@@ -129,19 +120,8 @@ class SheetAnalyser:
 
         return {col: metrics[metric](col) for col in numeric_cols}
 
-    def missing_values(self):
-        return self.df.isnull().sum().to_dict()
 
-    def correlation_matrix(self):
-        return self.df.corr(numeric_only=True).to_dict()
-
-    def duplicate_rows(self):
-        return self.df[self.df.duplicated()].to_dict(orient="records")
-
-    def unique_values(self):
-        return {col: self.df[col].unique().tolist() for col in self.df.columns}
-
-    def plot_histogram(self, columns: list) -> plt.Figure:
+    def plot_histogram(self, columns: list) -> plt.Figure: #need to change
         """
         Plots histograms for the selected columns.
 
@@ -196,6 +176,8 @@ class SheetAnalyser:
         """
         fig, ax = plt.subplots(figsize=(10, 8))
         corr_matrix = self.df.corr(numeric_only=True)
+        if corr_matrix.empty:
+            raise ValueError("No numeric columns found in the DataFrame")
         sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
         ax.set_title("Correlation Heatmap")
 
