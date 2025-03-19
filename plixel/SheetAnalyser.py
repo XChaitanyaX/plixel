@@ -27,7 +27,7 @@ class SheetAnalyser:
 
     plot_histogram(columns: list) -> plt.Figure:
         Plots histograms for the selected columns.
-        
+
     plot_correlation_heatmap() -> plt.Figure:
         Plots a heatmap of the correlation matrix for the numeric columns in the DataFrame.
 
@@ -40,7 +40,7 @@ class SheetAnalyser:
     ... })
     >>> sheet_analyser = SheetAnalyser(df=df)
     >>> type(sheet_analyser)
-    <class 'SheetAnalyser.SheetAnalyser'>
+    <class 'plixel.SheetAnalyser.SheetAnalyser'>
     """
 
     def __init__(
@@ -120,8 +120,7 @@ class SheetAnalyser:
 
         return {col: metrics[metric](col) for col in numeric_cols}
 
-
-    def plot_histogram(self, columns: list) -> plt.Figure: #need to change
+    def plot_histogram(self, columns: list) -> plt.Figure:  # need to change
         """
         Plots histograms for the selected columns.
 
@@ -299,14 +298,14 @@ class SheetAnalyser:
         for month in months:
             if month not in yearly_data.columns:
                 continue
-            
+
             monthly_data_avg = None
             if metric in metrics:
                 monthly_data_avg = metric_functions[metric](month)
-                
+
             else:
                 raise ValueError(f"Unsupported metric: {metric}")
-            
+
             plt.bar(month, monthly_data_avg, label=month)
 
         plt.title(f"Average Sales for {business_unit} in {year}")
