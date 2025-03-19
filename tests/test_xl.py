@@ -19,6 +19,9 @@ def test_init() -> None:
 
     assert global_sa.df is not None
 
+    with pytest.raises(ValueError):
+        err_sa = SheetAnalyser()
+
 
 def test_plot_correlation_heatmap():
     global global_sa
@@ -26,6 +29,7 @@ def test_plot_correlation_heatmap():
     plot = global_sa.plot_correlation_heatmap()
 
     assert plt.get_fignums() != 0
+    del plot
 
     with pytest.raises(ValueError):
         err_data = {
@@ -53,6 +57,7 @@ def test_plot_histogram():
 
     plot = global_sa.plot_histogram(["Jan"])
     assert plt.get_fignums() != 0
+    del plot
 
     with pytest.raises(ValueError):
         err_data = {
@@ -72,3 +77,4 @@ def test_plot_business_units_over_years():
         business_col="Business Unit", business_unit="Software"
     )
     assert plt.get_fignums() != 0
+    del plot
