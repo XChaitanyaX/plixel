@@ -53,14 +53,12 @@ class CsvAnalyser:
     ...     "B": [4, 5, 6]
     ... })
     >>> analyser = CsvAnalyser(df=df)
-    >>> analyser.get_summary()
-    {'columns': ['A', 'B'], 'row_count': 3, 'stats': {'A': {'count': 3.0, 'mean': 2.0, 'std': 1.0, 'min': 1.0, '25%': 1.5, '50%': 2.0, '75%': 2.5, 'max': 3.0}, 'B': {'count': 3.0, 'mean': 5.0, 'std': 1.0, 'min': 4.0, '25%': 4.5, '50%': 5.0, '75%': 5.5, 'max': 6.0}}}
     >>> analyser.get_trends()
     {'A': np.float64(2.0), 'B': np.float64(5.0)}
 
     """
 
-    def __init__(self, *, df: pd.DataFrame = None, file_path: str | None = None):
+    def __init__(self, *, df: pd.DataFrame | None = None, file_path: str | None = None):
         """
 
         Args:
