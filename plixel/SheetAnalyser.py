@@ -39,8 +39,6 @@ class SheetAnalyser:
     ...     "C": [11, 12, 13, 14, 15]
     ... })
     >>> sheet_analyser = SheetAnalyser(df=df)
-    >>> type(sheet_analyser)
-    <class 'plixel.SheetAnalyser.SheetAnalyser'>
     """
 
     def __init__(
