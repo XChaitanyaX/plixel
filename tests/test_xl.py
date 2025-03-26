@@ -1,8 +1,10 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
 
 from plixel import SheetAnalyser
+from openpyxl import Workbook
 
 data = {
     "Business Unit": ["Software", "Software", "Advertising", "Advertising"],
@@ -15,12 +17,22 @@ df = pd.DataFrame(data)
 global_sa = SheetAnalyser(df=df)
 
 
+def get_random_workbook() -> Workbook:
+    return Workbook()
+
+
 def test_init() -> None:
 
     assert global_sa.df is not None
 
     with pytest.raises(ValueError):
         err_sa = SheetAnalyser()
+
+    with pytest.raises(ValueError):
+        err_sa = SheetAnalyser(file_path="error.xlsx")
+
+    err_sa = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+    assert err_sa.df is not None
 
 
 def test_plot_correlation_heatmap():
@@ -77,4 +89,63 @@ def test_plot_business_units_over_years():
         business_col="Business Unit", business_unit="Software"
     )
     assert plt.get_fignums() != 0
-    del plot
+
+    with pytest.raises(ValueError):
+        global_sa.plot_business_units_over_years(
+            business_col="Unit", business_unit="Software"
+        )
+
+    with pytest.raises(ValueError):
+        global_sa.plot_business_units_over_years(
+            business_col="Business Unit", business_unit="Softwares"
+        )
+
+    with pytest.raises(ValueError):
+        test_df = df.drop(columns=["Year"])
+        test_sa = SheetAnalyser(df=test_df)
+
+        test_sa.plot_business_units_over_years(
+            business_col="Business Unit", business_unit="Software"
+        )
+
+
+def test_plot_barchart_for_each_month() -> None:
+    global global_sa
+
+    plot = global_sa.plot_barchart_for_each_month(
+        business_col="Business Unit", business_unit="Software", year=2020
+    )
+
+    assert plt.get_fignums() != 0
+    assert type(plot) == matplotlib.figure.Figure
+
+    with pytest.raises(ValueError):
+        global_sa.plot_barchart_for_each_month(
+            business_col="Unit", business_unit="Software", year=2020
+        )
+
+    with pytest.raises(ValueError):
+        global_sa.plot_barchart_for_each_month(
+            business_col="Business Unit", business_unit="Softwares", year=2020
+        )
+
+    with pytest.raises(ValueError):
+        test_df = df.drop(columns=["Year"])
+        print(test_df.head())
+        test_sa = SheetAnalyser(df=test_df)
+        test_sa.plot_barchart_for_each_month(
+            business_col="Business Unit", business_unit="Software", year=2024
+        )
+
+    with pytest.raises(ValueError):
+        global_sa.plot_barchart_for_each_month(
+            business_col="Business Unit", business_unit="Software", year=9999
+        )
+
+    with pytest.raises(ValueError):
+        global_sa.plot_barchart_for_each_month(
+            metric="error",
+            business_col="Business Unit",
+            business_unit="Software",
+            year=2020,
+        )
