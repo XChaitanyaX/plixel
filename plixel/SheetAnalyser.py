@@ -1,8 +1,9 @@
 import calendar
 import os
-from typing import Any
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 from openpyxl import Workbook
@@ -313,3 +314,30 @@ class SheetAnalyser:
         plt.tight_layout()
 
         return plt.gcf()
+
+    def get_no_of_employees(self, *, employee_col: str, employee_type: str) -> int:
+        """
+        Returns the number of employees in each department.
+
+        Args:
+            employee_col (str): column name containing the department names
+
+        Raises:
+            ValueError: if employee_col is not found in the DataFrame.
+
+        Returns:
+            dict: Number of employees in each department
+
+        >>> sheet = SheetAnalyser(file_path="sample_files/sample3.xlsx")
+        >>> sheet.get_no_of_employees(employee_col="Occupation", employee_type="Engineer")
+        6
+        """
+        if employee_col not in self.df.columns:
+            raise ValueError(f"Column '{employee_col}' not found in the DataFrame")
+
+        if employee_type not in self.df[employee_col].unique():
+            raise ValueError(
+                f"Employee type '{employee_type}' not found in the DataFrame"
+            )
+
+        return sum(1 for _ in self.df[employee_col] if _ == employee_type)
