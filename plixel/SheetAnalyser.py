@@ -81,6 +81,19 @@ class SheetAnalyser:
         else:
             raise ValueError("Invalid file path or workbook")
 
+        self.neutralize_cols()
+        self.neutralize_rows()
+
+    def get_columns(self, dtype) -> list[str]:
+        return self.df.select_dtypes(include=dtype).columns.tolist()
+
+    def neutralize_cols(self) -> None:
+        self.df.columns = pd.Index([col.strip() for col in self.df.columns])
+
+    def neutralize_rows(self) -> None:
+        for i in self.get_columns(object):
+            self.df[i] = self.df[i].apply(lambda x: x.strip())
+
     def get_trends(self, metric="mean") -> dict[str | Any, pd.Series | Any]:
         """
         Returns the trend of the selected metric for all numeric columns in the DataFrame.
