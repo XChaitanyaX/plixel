@@ -14,7 +14,16 @@ data = {
 }
 
 df = pd.DataFrame(data)
-global_sa = SheetAnalyser(df=df)
+global_sa1 = SheetAnalyser(df=df)
+
+data1 = {
+    "Name": ["Alice", "Bob", "Charlie", "David"],
+    "Age": [20, 30, 40, 50],
+    "Occupation": ["Engineer", "Doctor", "Artist", "Lawyer"],
+    "Salary": [30000, 40000, 50000, 60000],
+}
+
+global_sa2 = SheetAnalyser(df=pd.DataFrame(data1))
 
 
 def get_random_workbook() -> Workbook:
@@ -23,7 +32,7 @@ def get_random_workbook() -> Workbook:
 
 def test_init() -> None:
 
-    assert global_sa.df is not None
+    assert global_sa1.df is not None
 
     with pytest.raises(ValueError):
         err_sa = SheetAnalyser()
@@ -36,9 +45,9 @@ def test_init() -> None:
 
 
 def test_plot_correlation_heatmap():
-    global global_sa
+    global global_sa1
 
-    plot = global_sa.plot_correlation_heatmap()
+    plot = global_sa1.plot_correlation_heatmap()
 
     assert plt.get_fignums() != 0
     del plot
@@ -55,19 +64,19 @@ def test_plot_correlation_heatmap():
 
 
 def test_get_trends():
-    global global_sa
+    global global_sa1
 
-    trends = global_sa.get_trends()
+    trends = global_sa1.get_trends()
     assert trends is not None
 
     with pytest.raises(ValueError):
-        global_sa.get_trends(metric="error")
+        global_sa1.get_trends(metric="error")
 
 
 def test_plot_histogram():
-    global global_sa
+    global global_sa1
 
-    plot = global_sa.plot_histogram(["Jan"])
+    plot = global_sa1.plot_histogram(["Jan"])
     assert plt.get_fignums() != 0
     del plot
 
@@ -83,20 +92,20 @@ def test_plot_histogram():
 
 
 def test_plot_business_units_over_years():
-    global global_sa
+    global global_sa1
 
-    plot = global_sa.plot_business_units_over_years(
+    plot = global_sa1.plot_business_units_over_years(
         business_col="Business Unit", business_unit="Software"
     )
     assert plt.get_fignums() != 0
 
     with pytest.raises(ValueError):
-        global_sa.plot_business_units_over_years(
+        global_sa1.plot_business_units_over_years(
             business_col="Unit", business_unit="Software"
         )
 
     with pytest.raises(ValueError):
-        global_sa.plot_business_units_over_years(
+        global_sa1.plot_business_units_over_years(
             business_col="Business Unit", business_unit="Softwares"
         )
 
@@ -110,9 +119,9 @@ def test_plot_business_units_over_years():
 
 
 def test_plot_barchart_for_each_month() -> None:
-    global global_sa
+    global global_sa1
 
-    plot = global_sa.plot_barchart_for_each_month(
+    plot = global_sa1.plot_barchart_for_each_month(
         business_col="Business Unit", business_unit="Software", year=2020
     )
 
@@ -120,12 +129,12 @@ def test_plot_barchart_for_each_month() -> None:
     assert type(plot) == matplotlib.figure.Figure
 
     with pytest.raises(ValueError):
-        global_sa.plot_barchart_for_each_month(
+        global_sa1.plot_barchart_for_each_month(
             business_col="Unit", business_unit="Software", year=2020
         )
 
     with pytest.raises(ValueError):
-        global_sa.plot_barchart_for_each_month(
+        global_sa1.plot_barchart_for_each_month(
             business_col="Business Unit", business_unit="Softwares", year=2020
         )
 
@@ -138,14 +147,25 @@ def test_plot_barchart_for_each_month() -> None:
         )
 
     with pytest.raises(ValueError):
-        global_sa.plot_barchart_for_each_month(
+        global_sa1.plot_barchart_for_each_month(
             business_col="Business Unit", business_unit="Software", year=9999
         )
 
     with pytest.raises(ValueError):
-        global_sa.plot_barchart_for_each_month(
+        global_sa1.plot_barchart_for_each_month(
             metric="error",
             business_col="Business Unit",
             business_unit="Software",
             year=2020,
         )
+
+
+def test_get_no_of_employees():
+    global global_sa2
+
+    assert (
+        global_sa2.get_no_of_employees(
+            employee_col="Occupation", employee_type="Engineer"
+        )
+        == 1
+    )
