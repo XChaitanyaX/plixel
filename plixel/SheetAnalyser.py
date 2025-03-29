@@ -1,9 +1,8 @@
 import calendar
 import os
-from typing import Any, Union
+from typing import Any
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 from openpyxl import Workbook
@@ -354,3 +353,44 @@ class SheetAnalyser:
             )
 
         return sum(1 for _ in self.df[employee_col] if _ == employee_type)
+
+    def no_of_employees_above(self, threshold: int, *, salary_col: str) -> int:
+        """
+        Returns the number of employees with a salary above a certain threshold.
+
+        Args:
+            salary (int): the salary threshold
+            salary_col (str): column name containing the salaries
+
+        Raises:
+            ValueError: if salary_col is not found in the DataFrame.
+
+        Returns:
+            int: Number of employees with a salary above the threshold
+        """
+        if salary_col not in self.df.columns:
+            raise ValueError(f"Column '{salary_col}' not found in the DataFrame")
+
+        return sum(1 for _ in self.df[salary_col] if _ > threshold)
+
+    def no_of_employees_in_each_dept(self) -> dict[str, int]:
+        """
+        Returns the number of employees in each department.
+
+        Returns:
+            dict: Number of employees in each department
+        """
+        return self.df["Occupation"].value_counts().to_dict()
+
+    def get_active_emp(self, emp_type: str, *, emp_col: str) -> int:
+        """
+        Returns the number of active employees of a given type.
+
+        Args:
+            emp_type (str): the type of employee to filter by
+            emp_col (str): the column name containing the employee types
+
+        Returns:
+            int: Number of active employees of the given type
+        """
+        return self.df[self.df[emp_col] == emp_type]["Status"].value_counts()["Active"]
