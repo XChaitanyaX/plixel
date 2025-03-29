@@ -44,7 +44,7 @@ def test_init() -> None:
     assert err_sa.df is not None
 
 
-def test_plot_correlation_heatmap():
+def test_plot_correlation_heatmap() -> None:
     global global_sa1
 
     plot = global_sa1.plot_correlation_heatmap()
@@ -63,7 +63,7 @@ def test_plot_correlation_heatmap():
         err_sa.plot_correlation_heatmap()
 
 
-def test_get_trends():
+def test_get_trends() -> None:
     global global_sa1
 
     trends = global_sa1.get_trends()
@@ -73,7 +73,7 @@ def test_get_trends():
         global_sa1.get_trends(metric="error")
 
 
-def test_plot_histogram():
+def test_plot_histogram() -> None:
     global global_sa1
 
     plot = global_sa1.plot_histogram(["Jan"])
@@ -91,7 +91,7 @@ def test_plot_histogram():
         err_sa.plot_histogram(columns=["Jan", "Feb"])
 
 
-def test_plot_business_units_over_years():
+def test_plot_business_units_over_years() -> None:
     global global_sa1
 
     plot = global_sa1.plot_business_units_over_years(
@@ -160,7 +160,7 @@ def test_plot_barchart_for_each_month() -> None:
         )
 
 
-def test_get_no_of_employees():
+def test_get_no_of_employees() -> None:
     global global_sa2
 
     assert (
