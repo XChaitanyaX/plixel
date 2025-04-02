@@ -394,3 +394,39 @@ class SheetAnalyser:
             int: Number of active employees of the given type
         """
         return self.df[self.df[emp_col] == emp_type]["Status"].value_counts()["Active"]
+
+    def get_active_employees(self, *, emp_col: str) -> int:
+        """
+        Returns the number of active employees.
+
+        Args:
+            emp_col (str): the column name containing the employee types
+
+        Returns:
+            int: Number of active employees
+        """
+        return self.get_employee_status(emp_col=emp_col)["Active"]
+
+    def get_inactive_employees(self, *, emp_col: str) -> int:
+        """
+        Returns the number of inactive employees.
+
+        Args:
+            emp_col (str): the column name containing the employee types
+
+        Returns:
+            int: Number of inactive employees
+        """
+        return self.get_employee_status(emp_col=emp_col)["Inactive"]
+
+    def get_employee_status(self, *, emp_col: str) -> dict[str, int]:
+        """
+        Returns the number of employees in each status.
+
+        Args:
+            emp_col (str): the column name containing the employee types
+
+        Returns:
+            dict: Number of employees in each status
+        """
+        return self.df[emp_col].value_counts().to_dict()
