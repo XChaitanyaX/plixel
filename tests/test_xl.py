@@ -140,7 +140,6 @@ def test_plot_barchart_for_each_month() -> None:
 
     with pytest.raises(ValueError):
         test_df = df.drop(columns=["Year"])
-        print(test_df.head())
         test_sa = SheetAnalyser(df=test_df)
         test_sa.plot_barchart_for_each_month(
             business_col="Business Unit", business_unit="Software", year=2024
