@@ -57,7 +57,7 @@ class SheetAnalyser:
             names (str | None, optional): names of the columns. Mention only if column names are not present in the provided sheet. Defaults to None.
         Raises:
             ValueError: if none of the arguments are provided or given file_path does not exist.
-        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
         >>> sheet = SheetAnalyser(df=pd.DataFrame())
         >>> sheet = SheetAnalyser()
         Traceback (most recent call last):
@@ -178,7 +178,7 @@ class SheetAnalyser:
         Returns:
             Figure: Correlation Heatmap for the DataFrame
 
-        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
         >>> plot = sheet.plot_correlation_heatmap()
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
@@ -210,7 +210,7 @@ class SheetAnalyser:
         Returns:
             Figure: Sales Trend for the given business unit over the years
 
-        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
         >>> plot = sheet.plot_business_units_over_years(business_col="Businees Unit", business_unit="Software")
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
@@ -271,7 +271,7 @@ class SheetAnalyser:
         Returns:
             Figure: Average Sales for the given business unit in the given year
 
-        >>> sheet = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
         >>> plot = sheet.plot_barchart_for_each_month(business_col="Businees Unit", business_unit="Software", year=2012)
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
@@ -340,7 +340,7 @@ class SheetAnalyser:
         Returns:
             dict: Number of employees in each department
 
-        >>> sheet = SheetAnalyser(file_path="sample_files/sample3.xlsx")
+        >>> sheet = SheetAnalyser(file_path="sample_files/employee_data.xlsx")
         >>> sheet.get_no_of_employees(employee_col="Occupation", employee_type="Engineer")
         6
         """
