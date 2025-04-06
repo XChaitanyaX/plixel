@@ -40,7 +40,7 @@ def test_init() -> None:
     with pytest.raises(ValueError):
         err_sa = SheetAnalyser(file_path="error.xlsx")
 
-    err_sa = SheetAnalyser(file_path="sample_files/Sample Data.xlsx")
+    err_sa = SheetAnalyser(file_path="sample_files/business_data.xlsx")
     assert err_sa.df is not None
 
 
