@@ -45,8 +45,7 @@ def test_init() -> None:
 
 
 def test_plot_correlation_heatmap() -> None:
-    global global_sa1
-
+    
     plot = global_sa1.plot_correlation_heatmap()
 
     assert plt.get_fignums() != 0
@@ -64,7 +63,6 @@ def test_plot_correlation_heatmap() -> None:
 
 
 def test_get_trends() -> None:
-    global global_sa1
 
     trends = global_sa1.get_trends()
     assert trends is not None
@@ -74,7 +72,6 @@ def test_get_trends() -> None:
 
 
 def test_plot_histogram() -> None:
-    global global_sa1
 
     plot = global_sa1.plot_histogram(["Jan"])
     assert plt.get_fignums() != 0
@@ -92,7 +89,6 @@ def test_plot_histogram() -> None:
 
 
 def test_plot_business_units_over_years() -> None:
-    global global_sa1
 
     plot = global_sa1.plot_business_units_over_years(
         business_col="Business Unit", business_unit="Software"
@@ -119,7 +115,6 @@ def test_plot_business_units_over_years() -> None:
 
 
 def test_plot_barchart_for_each_month() -> None:
-    global global_sa1
 
     plot = global_sa1.plot_barchart_for_each_month(
         business_col="Business Unit", business_unit="Software", year=2020
@@ -160,7 +155,6 @@ def test_plot_barchart_for_each_month() -> None:
 
 
 def test_get_no_of_employees() -> None:
-    global global_sa2
 
     assert (
         global_sa2.get_no_of_employees(
