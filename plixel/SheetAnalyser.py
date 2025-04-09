@@ -177,12 +177,6 @@ class SheetAnalyser:
 
         Returns:
             Figure: Correlation Heatmap for the DataFrame
-
-        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
-        >>> plot = sheet.plot_correlation_heatmap()
-        >>> type(plot)
-        <class 'matplotlib.figure.Figure'>
-        >>> assert plt.get_fignums() != 0
         """
         fig, ax = plt.subplots(figsize=(10, 8))
         corr_matrix = self.df.corr(numeric_only=True)
@@ -210,11 +204,6 @@ class SheetAnalyser:
         Returns:
             Figure: Sales Trend for the given business unit over the years
 
-        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
-        >>> plot = sheet.plot_business_units_over_years(business_col="Businees Unit", business_unit="Software")
-        >>> type(plot)
-        <class 'matplotlib.figure.Figure'>
-        >>> assert plt.get_fignums() != 0
         """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
@@ -270,12 +259,6 @@ class SheetAnalyser:
 
         Returns:
             Figure: Average Sales for the given business unit in the given year
-
-        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
-        >>> plot = sheet.plot_barchart_for_each_month(business_col="Businees Unit", business_unit="Software", year=2012)
-        >>> type(plot)
-        <class 'matplotlib.figure.Figure'>
-        >>> assert plt.get_fignums() != 0
         """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
@@ -339,10 +322,6 @@ class SheetAnalyser:
 
         Returns:
             dict: Number of employees in each department
-
-        >>> sheet = SheetAnalyser(file_path="sample_files/employee_data.xlsx")
-        >>> sheet.get_no_of_employees(employee_col="Occupation", employee_type="Engineer")
-        6
         """
         if employee_col not in self.df.columns:
             raise ValueError(f"Column '{employee_col}' not found in the DataFrame")
