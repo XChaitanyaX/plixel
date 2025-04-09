@@ -6,6 +6,8 @@ import pytest
 from plixel import SheetAnalyser
 from openpyxl import Workbook
 
+matplotlib.use("agg")
+
 data = {
     "Business Unit": ["Software", "Software", "Advertising", "Advertising"],
     "Jan": [1e5, 1e6, 1e7, 1e8],
@@ -29,6 +31,10 @@ global_sa2 = SheetAnalyser(df=pd.DataFrame(data1))
 def get_random_workbook() -> Workbook:
     return Workbook()
 
+@pytest.fixture(autouse=True)
+def close_plots():
+    yield
+    plt.close("all")
 
 def test_init() -> None:
 
