@@ -1,0 +1,20 @@
+[project]
+name = "plixel"
+version = "0.0.1"
+authors = [
+  { name="Bonu Krishna Chaitanya", email="bkc14042005@gmail.com" },
+]
+description = "A python package for data analysis and visualization"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dynamic = ["dependencies"]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/XChaitanyaX/plixel"
+Issues = "https://github.com/XChaitanyaX/plixel/issues"

@@ -12,3 +12,7 @@ build/
 .vscode/
 .pytest_cache/
 .coverage
+.dist-info/
+*.egg-info/
+dist/
+.pypirc
