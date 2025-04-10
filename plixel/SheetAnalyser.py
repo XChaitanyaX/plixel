@@ -23,15 +23,15 @@ class SheetAnalyser:
     Methods
     --------
     get_trends(metric: str = "mean") -> dict:
-        Returns the trend of the selected metric for all numeric columns in the DataFrame.
+        Returns the trend of the selected metric for all numeric columns
+        in the DataFrame.
 
     plot_histogram(columns: list) -> plt.Figure:
         Plots histograms for the selected columns.
 
     plot_correlation_heatmap() -> plt.Figure:
-        Plots a heatmap of the correlation matrix for the numeric columns in the DataFrame.
-
-    Most of the methods are derived from pd.DataFrame class so that there is no need to type more code.
+        Plots a heatmap of the correlation matrix for the numeric columns in
+        the DataFrame.
 
     >>> df = pd.DataFrame({
     ...     "A": [1, 2, 3, 4, 5],
@@ -48,16 +48,20 @@ class SheetAnalyser:
         df: pd.DataFrame | None = None,
         workbook: Workbook | None = None,
     ) -> None:
-        """Initializes the SheetAnalyser class.
+        """
+        Initializes the SheetAnalyser class.
 
         Args:
-            file_path (str | None, optional): path of the xl file. Defaults to None.
-            df (pd.DataFrame | None, optional): DataFrame representing the xl sheet. Defaults to None.
-            workbook (Workbook, optional): a WorkBook from openpyxl. Defaults to None.
-            names (str | None, optional): names of the columns. Mention only if column names are not present in the provided sheet. Defaults to None.
+            file_path (str | None, optional): path of the xl file.
+
+            df (pd.DataFrame | None, optional): DataFrame representing the
+            excel sheet.
+
+            workbook (Workbook, optional): a WorkBook from openpyxl.
         Raises:
-            ValueError: if none of the arguments are provided or given file_path does not exist.
-        >>> sheet = SheetAnalyser(file_path="sample_files/business_data.xlsx")
+            ValueError: if none of the arguments are provided or if given
+            file_path does not exist.
+
         >>> sheet = SheetAnalyser(df=pd.DataFrame())
         >>> sheet = SheetAnalyser()
         Traceback (most recent call last):
@@ -95,10 +99,12 @@ class SheetAnalyser:
 
     def get_trends(self, metric="mean") -> dict[str | Any, pd.Series | Any]:
         """
-        Returns the trend of the selected metric for all numeric columns in the DataFrame.
+        Returns the trend of the selected metric for all numeric columns
+        in the DataFrame.
 
         Args:
-            metric (str, optional): the trend of the given metric. Defaults to "mean".
+            metric (str, optional): the trend of the given metric.
+            Defaults to "mean".
 
         Raises:
             ValueError: if trend is not supported.
@@ -155,8 +161,12 @@ class SheetAnalyser:
         >>> assert plt.get_fignums() != 0
         """
         if not all(col in self.df.columns for col in columns):
-            missing_cols = [col for col in columns if col not in self.df.columns]
-            raise ValueError(f"Columns not found in the DataFrame: {missing_cols}")
+            missing_cols = [
+                col for col in columns if col not in self.df.columns
+            ]
+            raise ValueError(
+                f"Columns not found in the DataFrame: {missing_cols}"
+            )
 
         plt.figure(figsize=(10, 6))
 
@@ -173,7 +183,8 @@ class SheetAnalyser:
 
     def plot_correlation_heatmap(self) -> plt.Figure:
         """
-        Plots a heatmap of the correlation matrix for the numeric columns in the DataFrame.
+        Plots a heatmap of the correlation matrix for the numeric columns
+        in the DataFrame.
 
         Returns:
             Figure: Correlation Heatmap for the DataFrame
@@ -199,14 +210,17 @@ class SheetAnalyser:
             year (int): year to plot the trend for
 
         Raises:
-            ValueError: if business_col, business_unit, or year are not found in the DataFrame.
+            ValueError: if business_col, business_unit, or year are not found
+            in the DataFrame.
 
         Returns:
             Figure: Sales Trend for the given business unit over the years
 
         """
         if business_col not in self.df.columns:
-            raise ValueError(f"Column '{business_col}' not found in the DataFrame")
+            raise ValueError(
+                f"Column '{business_col}' not found in the DataFrame"
+            )
 
         if business_unit not in self.df[business_col].unique():
             raise ValueError(
@@ -235,7 +249,7 @@ class SheetAnalyser:
             )
             plt.bar(year, yearly_expenses, label=year)
 
-        plt.title(f"Sales Trend for {business_unit} in {year}")
+        plt.title(f"Sales Trend for {business_unit}")
         plt.xlabel("Year")
         plt.ylabel("Sales")
         plt.legend()
@@ -244,10 +258,16 @@ class SheetAnalyser:
         return plt.gcf()
 
     def plot_barchart_for_each_month(
-        self, *, metric: str = "mean", business_col: str, business_unit: str, year: int
+        self,
+        *,
+        metric: str = "mean",
+        business_col: str,
+        business_unit: str,
+        year: int,
     ) -> plt.Figure:
         """
-        Plots the average sales for each month in a given year for a given business unit.
+        Plots the average sales for each month in a given year for a given
+        business unit.
 
         Args:
             business_col (str): business column name
@@ -255,13 +275,16 @@ class SheetAnalyser:
             year (int): year to plot the trend for
 
         Raises:
-            ValueError: if business_col, business_unit, or year are not found in the DataFrame.
+            ValueError: if business_col, business_unit, or year are not found
+            in the DataFrame.
 
         Returns:
             Figure: Average Sales for the given business unit in the given year
         """
         if business_col not in self.df.columns:
-            raise ValueError(f"Column '{business_col}' not found in the DataFrame")
+            raise ValueError(
+                f"Column '{business_col}' not found in the DataFrame"
+            )
 
         if business_unit not in self.df[business_col].unique():
             raise ValueError(
@@ -310,7 +333,9 @@ class SheetAnalyser:
 
         return plt.gcf()
 
-    def get_no_of_employees(self, *, employee_col: str, employee_type: str) -> int:
+    def get_no_of_employees(
+        self, *, employee_col: str, employee_type: str
+    ) -> int:
         """
         Returns the number of employees in each department.
 
@@ -324,7 +349,9 @@ class SheetAnalyser:
             dict: Number of employees in each department
         """
         if employee_col not in self.df.columns:
-            raise ValueError(f"Column '{employee_col}' not found in the DataFrame")
+            raise ValueError(
+                f"Column '{employee_col}' not found in the DataFrame"
+            )
 
         if employee_type not in self.df[employee_col].unique():
             raise ValueError(
@@ -335,7 +362,8 @@ class SheetAnalyser:
 
     def no_of_employees_above(self, threshold: int, *, salary_col: str) -> int:
         """
-        Returns the number of employees with a salary above a certain threshold.
+        Returns the number of employees with a salary above a certain
+        threshold.
 
         Args:
             salary (int): the salary threshold
@@ -348,7 +376,9 @@ class SheetAnalyser:
             int: Number of employees with a salary above the threshold
         """
         if salary_col not in self.df.columns:
-            raise ValueError(f"Column '{salary_col}' not found in the DataFrame")
+            raise ValueError(
+                f"Column '{salary_col}' not found in the DataFrame"
+            )
 
         return sum(1 for _ in self.df[salary_col] if _ > threshold)
 
@@ -372,7 +402,9 @@ class SheetAnalyser:
         Returns:
             int: Number of active employees of the given type
         """
-        return self.df[self.df[emp_col] == emp_type]["Status"].value_counts()["Active"]
+        return self.df[self.df[emp_col] == emp_type]["Status"].value_counts()[
+            "Active"
+        ]
 
     def get_active_employees(self, *, emp_col: str) -> int:
         """

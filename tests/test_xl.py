@@ -2,9 +2,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
+from openpyxl import Workbook
 
 from plixel import SheetAnalyser
-from openpyxl import Workbook
 
 matplotlib.use("agg")
 
@@ -31,10 +31,12 @@ global_sa2 = SheetAnalyser(df=pd.DataFrame(data1))
 def get_random_workbook() -> Workbook:
     return Workbook()
 
+
 @pytest.fixture(autouse=True)
 def close_plots():
     yield
     plt.close("all")
+
 
 def test_init() -> None:
 
@@ -51,7 +53,6 @@ def test_init() -> None:
 
 
 def test_plot_correlation_heatmap() -> None:
-    
     plot = global_sa1.plot_correlation_heatmap()
 
     assert plt.get_fignums() != 0
@@ -69,7 +70,6 @@ def test_plot_correlation_heatmap() -> None:
 
 
 def test_get_trends() -> None:
-
     trends = global_sa1.get_trends()
     assert trends is not None
 
@@ -100,6 +100,7 @@ def test_plot_business_units_over_years() -> None:
         business_col="Business Unit", business_unit="Software"
     )
     assert plt.get_fignums() != 0
+    del plot
 
     with pytest.raises(ValueError):
         global_sa1.plot_business_units_over_years(
@@ -127,7 +128,7 @@ def test_plot_barchart_for_each_month() -> None:
     )
 
     assert plt.get_fignums() != 0
-    assert type(plot) == matplotlib.figure.Figure
+    assert type(plot) is matplotlib.figure.Figure
 
     with pytest.raises(ValueError):
         global_sa1.plot_barchart_for_each_month(
