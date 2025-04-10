@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import numpy as np
 import os
 
 
@@ -38,10 +37,6 @@ class CsvAnalyser:
 
     ...
 
-    Most of these functions are exact copies of the functions present in pandas.DataFrame.
-
-    They are just provided here for convenience of not typing too much.
-
     Rather than having to type:
         CsvAnalyser.df.describe()
 
@@ -58,9 +53,10 @@ class CsvAnalyser:
 
     """
 
-    def __init__(self, *, df: pd.DataFrame | None = None, file_path: str | None = None):
+    def __init__(
+        self, *, df: pd.DataFrame | None = None, file_path: str | None = None
+    ):
         """
-
         Args:
             df (DataFrame): the df to Analyse
             file_path (str): location of the csv or .data file
@@ -269,10 +265,9 @@ class CsvAnalyser:
         >>> df.columns
         Index(['first_name', 'last_name', 'age'], dtype='object')
         """
-        self.df.columns = [col.lower().replace(" ", "_") for col in self.df.columns]
-
-    def remove_duplicates(self):
-        return self.df.drop_duplicates()
+        self.df.columns = [
+            col.lower().replace(" ", "_") for col in self.df.columns
+        ]
 
     def plot_column(self, column: str, plot_type: str):
         """
@@ -282,7 +277,8 @@ class CsvAnalyser:
             plot_type (str): type of the plot
 
         Raises:
-            ValueError: if column not found in the DataFrame or unsupported plot type
+            ValueError: if column not found in the DataFrame or
+            unsupported plot type
 
         Returns:
             Figure: the plot of the column
@@ -312,30 +308,3 @@ class CsvAnalyser:
             raise ValueError(f"Unsupported plot type: {plot_type}")
 
         return plt.gcf()
-
-    def get_row(self, index: int):
-        if index >= len(self.df):
-            raise IndexError(f"Index {index} out of bounds")
-        return self.df.iloc[index]
-
-    def get_column(self, column: str):
-        if column not in self.df.columns:
-            raise ValueError(f"Column '{column}' not found in the DataFrame")
-
-        return self.df[column]
-
-    def check_missing_values(self):
-        return self.df.isnull().sum().to_dict()
-
-    def fill_missing_values(self, value):
-        return self.df.fillna(value)
-
-    def drop_missing_values(self):
-        self.df.dropna(inplace=True)
-        return self.df
-
-    def drop_column(self, column: str | list[str]):
-        if column not in self.df.columns:
-            raise ValueError(f"Column '{column}' not found in the DataFrame")
-
-        return self.df.drop(columns=column)
