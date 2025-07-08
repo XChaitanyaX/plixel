@@ -3,6 +3,7 @@ import os
 from typing import Any
 
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import pandas as pd
 import seaborn as sns
 from openpyxl import Workbook
@@ -87,17 +88,22 @@ class SheetAnalyser:
         self.neutralize_cols()
         self.neutralize_rows()
 
-    def get_columns(self, dtype) -> list[str]:
-        return self.df.select_dtypes(include=dtype).columns.tolist()
+    def get_columns(self, dtype: Any) -> list[str]:
+        return [
+            str(col)
+            for col in self.df.select_dtypes(include=dtype).columns.tolist()
+        ]
 
     def neutralize_cols(self) -> None:
         self.df.columns = pd.Index([col.strip() for col in self.df.columns])
 
     def neutralize_rows(self) -> None:
         for i in self.get_columns(object):
-            self.df[i] = self.df[i].apply(lambda x: x.strip())
+            self.df[i] = self.df[i].apply(
+                lambda x: x.strip() if isinstance(x, str) else x
+            )
 
-    def get_trends(self, metric="mean") -> dict[str | Any, pd.Series | Any]:
+    def get_trends(self, metric: str = "mean") -> dict[str, Any]:
         """
         Returns the trend of the selected metric for all numeric columns
         in the DataFrame.
@@ -123,7 +129,7 @@ class SheetAnalyser:
         """
         numeric_cols = self.df.select_dtypes(include="number").columns
 
-        metrics = {
+        metrics: dict[str, Any] = {
             "mean": lambda col: self.df[col].mean(),
             "median": lambda col: self.df[col].median(),
             "max": lambda col: self.df[col].max(),
@@ -137,12 +143,12 @@ class SheetAnalyser:
 
         return {col: metrics[metric](col) for col in numeric_cols}
 
-    def plot_histogram(self, columns: list) -> plt.Figure:  # need to change
+    def plot_histogram(self, columns: list[str]) -> Figure:  # need to change
         """
         Plots histograms for the selected columns.
 
         Args:
-            columns (list): List of columns to plot histograms for.
+            columns (list[str]): List of columns to plot histograms for.
         Raises:
             ValueError: if any of the columns are not found in the DataFrame.
 
@@ -181,7 +187,7 @@ class SheetAnalyser:
 
         return plt.gcf()
 
-    def plot_correlation_heatmap(self) -> plt.Figure:
+    def plot_correlation_heatmap(self) -> Figure:
         """
         Plots a heatmap of the correlation matrix for the numeric columns
         in the DataFrame.
@@ -200,7 +206,7 @@ class SheetAnalyser:
 
     def plot_business_units_over_years(
         self, *, business_col: str, business_unit: str
-    ) -> plt.Figure:
+    ) -> Figure:
         """
         Plots the sales trend for a given business unit over the years.
 
@@ -264,7 +270,7 @@ class SheetAnalyser:
         business_col: str,
         business_unit: str,
         year: int,
-    ) -> plt.Figure:
+    ) -> Figure:
         """
         Plots the average sales for each month in a given year for a given
         business unit.
@@ -303,7 +309,7 @@ class SheetAnalyser:
         yearly_data = self.df[self.df["Year"] == year]
         metrics = ("mean", "median", "max", "min", "std", "var")
 
-        metric_functions = {
+        metric_functions: dict[str, Any] = {
             "mean": lambda month: yearly_data[month].mean(),
             "median": lambda month: yearly_data[month].median(),
             "max": lambda month: yearly_data[month].max(),
