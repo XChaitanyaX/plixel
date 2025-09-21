@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import pandas as pd
 import seaborn as sns
-from openpyxl import Workbook
 
 
 class SheetAnalyser:
@@ -47,46 +46,41 @@ class SheetAnalyser:
         *,
         file_path: str | None = None,
         df: pd.DataFrame | None = None,
-        workbook: Workbook | None = None,
     ) -> None:
         """
-        Initializes the SheetAnalyser class.
+        Initializes the SheetAnalyser class. Requires at least one of the
+        arguments to be provided.
 
         Args:
-            file_path (str | None, optional): path of the xl file.
+            file_path (str | None): path of the xl file.
 
-            df (pd.DataFrame | None, optional): DataFrame representing the
-            excel sheet.
+            df (pd.DataFrame | None): DataFrame representing the excel sheet.
 
-            workbook (Workbook, optional): a WorkBook from openpyxl.
         Raises:
             ValueError: if none of the arguments are provided or if given
             file_path does not exist.
-
-        >>> sheet = SheetAnalyser(df=pd.DataFrame())
-        >>> sheet = SheetAnalyser()
-        Traceback (most recent call last):
-            ...
-        ValueError: Invalid file path or workbook
         """
-        if workbook is not None:
-            self.df = pd.read_excel(workbook)
-            self.active_sheet = workbook.active
+        self.sheets = []
+        self.active_sheet = None
 
-        elif file_path is not None and file_path.endswith((".xlsx", ".xls")):
+        if file_path is not None and file_path.endswith((".xlsx", ".xls")):
             if not os.path.exists(file_path):
                 raise ValueError(f"File not found: {file_path}")
 
-            self.df = pd.read_excel(file_path)
+            excel_file = pd.ExcelFile(file_path)
+            self.sheets = excel_file.sheet_names
+            self.df = pd.read_excel(file_path, sheet_name=self.sheets[0])
+            self.active_sheet = self.df
 
         elif df is not None and isinstance(df, pd.DataFrame):
             self.df = df
+            self.active_sheet = df
 
         else:
-            raise ValueError("Invalid file path or workbook")
+            raise ValueError("Provide either file_path or df")
 
-        self.neutralize_cols()
-        self.neutralize_rows()
+        self._neutralize_cols()
+        self._neutralize_rows()
 
     def get_columns(self, dtype: Any) -> list[str]:
         return [
@@ -94,10 +88,10 @@ class SheetAnalyser:
             for col in self.df.select_dtypes(include=dtype).columns.tolist()
         ]
 
-    def neutralize_cols(self) -> None:
+    def _neutralize_cols(self) -> None:
         self.df.columns = pd.Index([col.strip() for col in self.df.columns])
 
-    def neutralize_rows(self) -> None:
+    def _neutralize_rows(self) -> None:
         for i in self.get_columns(object):
             self.df[i] = self.df[i].apply(
                 lambda x: x.strip() if isinstance(x, str) else x
