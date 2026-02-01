@@ -86,7 +86,7 @@ class CsvAnalyser:
                 self._df = pd.read_excel(file_path)
                 self.df = pd.read_excel(file_path)
         else:
-            raise ValueError("Must provide atleast one argument")
+            raise ValueError("Must provide at least one argument")
 
     def get_trends(self, metric="mean"):
         """
@@ -350,6 +350,10 @@ class CsvAnalyser:
 
         Returns:
             Figure: the plot with histograms
+
+        Note:
+            For many columns (>5), consider using multiple calls with fewer
+            columns for better readability.
         """
         for column in columns:
             if column not in self.df.columns:
@@ -357,7 +361,9 @@ class CsvAnalyser:
             if not pd.api.types.is_numeric_dtype(self.df[column]):
                 raise ValueError(f"Column '{column}' is not numeric")
 
-        fig, axes = plt.subplots(1, len(columns), figsize=(10 * len(columns), 6))
+        # Cap figure width at 50 inches for readability
+        fig_width = min(10 * len(columns), 50)
+        fig, axes = plt.subplots(1, len(columns), figsize=(fig_width, 6))
         if len(columns) == 1:
             axes = [axes]
 
@@ -427,6 +433,11 @@ class CsvAnalyser:
 
         Returns:
             Figure: the bar chart for monthly data
+
+        Note:
+            This method assumes month columns are named as: Jan, Feb, Mar, Apr,
+            May, Jun, Jul, Aug, Sep, Oct, Nov, Dec. If your data uses different
+            column names, the method will not find the month columns.
         """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
