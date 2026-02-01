@@ -74,10 +74,10 @@ class CsvAnalyser:
             # Check file extension first
             if not file_path.endswith((".csv", ".data", ".xlsx", ".xls")):
                 raise ValueError("Must provide a .csv, .data, .xlsx, or .xls file")
-            
+
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"File '{file_path}' not found")
-            
+
             self._path = file_path
             if file_path.endswith((".csv", ".data")):
                 self._df = pd.read_csv(file_path)
@@ -175,7 +175,7 @@ class CsvAnalyser:
         """
         # Select only numeric columns for correlation
         numeric_df = self.df.select_dtypes(include="number")
-        
+
         plt.figure(figsize=(10, 6))
         sns.heatmap(numeric_df.corr(), annot=True)
         plt.title("Correlation Matrix")
@@ -335,7 +335,7 @@ class CsvAnalyser:
         numeric_cols = self.df.select_dtypes(include="number").columns
         if len(numeric_cols) < 2:
             raise ValueError("Need at least 2 numeric columns for correlation")
-        
+
         return self.plot_correlation()
 
     def plot_histogram(self, columns: list):
@@ -384,30 +384,30 @@ class CsvAnalyser:
         """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
-        
+
         if business_unit not in self.df[business_col].values:
             raise ValueError(f"Business unit '{business_unit}' not found in column '{business_col}'")
-        
+
         if "Year" not in self.df.columns:
             raise ValueError("Column 'Year' not found in the DataFrame")
 
         filtered_df = self.df[self.df[business_col] == business_unit]
-        
+
         plt.figure(figsize=(10, 6))
-        
+
         # Get numeric columns excluding Year
         numeric_cols = [col for col in filtered_df.select_dtypes(include="number").columns if col != "Year"]
-        
+
         for col in numeric_cols:
             yearly_data = filtered_df.groupby("Year")[col].sum()
             plt.plot(yearly_data.index, yearly_data.values, marker='o', label=col)
-        
+
         plt.xlabel("Year")
         plt.ylabel("Value")
         plt.title(f"{business_unit} - Trends Over Years")
         plt.legend()
         plt.grid(True)
-        
+
         return plt.gcf()
 
     def plot_barchart_for_each_month(
@@ -430,13 +430,13 @@ class CsvAnalyser:
         """
         if business_col not in self.df.columns:
             raise ValueError(f"Column '{business_col}' not found in the DataFrame")
-        
+
         if business_unit not in self.df[business_col].values:
             raise ValueError(f"Business unit '{business_unit}' not found in column '{business_col}'")
-        
+
         if "Year" not in self.df.columns:
             raise ValueError("Column 'Year' not found in the DataFrame")
-        
+
         if year not in self.df["Year"].values:
             raise ValueError(f"Year {year} not found in the DataFrame")
 
@@ -447,11 +447,11 @@ class CsvAnalyser:
         filtered_df = self.df[
             (self.df[business_col] == business_unit) & (self.df["Year"] == year)
         ]
-        
+
         # Get month columns (common month names)
         months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         available_months = [m for m in months if m in filtered_df.columns]
-        
+
         if not available_months:
             raise ValueError("No month columns found in the DataFrame")
 
@@ -474,7 +474,7 @@ class CsvAnalyser:
         plt.title(f"{business_unit} - Monthly Data for {year}")
         plt.xticks(rotation=45)
         plt.tight_layout()
-        
+
         return plt.gcf()
 
     def get_no_of_employees(self, employee_col: str, employee_type: str):
