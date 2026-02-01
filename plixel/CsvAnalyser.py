@@ -80,7 +80,7 @@ class CsvAnalyser:
             self._df = pd.read_csv(file_path)
             self.df = pd.read_csv(file_path)
         else:
-            raise ValueError("Must provide atleast one argument")
+            raise ValueError("Must provide at least one argument")
 
         # Initialize the plotter for visualization operations
         from .CsvPlotter import CsvPlotter

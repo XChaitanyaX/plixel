@@ -90,7 +90,7 @@ class CsvPlotter:
             plt.title(f"Histogram of {column}")
         elif plot_type == "boxplot":
             plt.figure(figsize=(10, 6))
-            sns.boxplot(self.analyser.df[column])
+            sns.boxplot(y=self.analyser.df[column])
             plt.title(f"Boxplot of {column}")
         else:
             raise ValueError(f"Unsupported plot type: {plot_type}")
