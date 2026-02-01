@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from openpyxl import Workbook
 
-from plixel import SheetAnalyser
+from plixel import CsvAnalyser
 
 matplotlib.use("agg")
 
@@ -16,7 +16,7 @@ data = {
 }
 
 df = pd.DataFrame(data)
-global_sa1 = SheetAnalyser(df=df)
+global_sa1 = CsvAnalyser(df=df)
 
 data1 = {
     "Name": ["Alice", "Bob", "Charlie", "David"],
@@ -25,7 +25,7 @@ data1 = {
     "Salary": [30000, 40000, 50000, 60000],
 }
 
-global_sa2 = SheetAnalyser(df=pd.DataFrame(data1))
+global_sa2 = CsvAnalyser(df=pd.DataFrame(data1))
 
 
 def get_random_workbook() -> Workbook:
@@ -43,12 +43,12 @@ def test_init() -> None:
     assert global_sa1.df is not None
 
     with pytest.raises(ValueError):
-        err_sa = SheetAnalyser()
+        err_sa = CsvAnalyser()
 
     with pytest.raises(ValueError):
-        err_sa = SheetAnalyser(file_path="error.xlsx")
+        err_sa = CsvAnalyser(file_path="error.unsupported")
 
-    err_sa = SheetAnalyser(file_path="sample_files/business_data.xlsx")
+    err_sa = CsvAnalyser(file_path="sample_files/business_data.xlsx")
     assert err_sa.df is not None
 
 
@@ -65,7 +65,7 @@ def test_plot_correlation_heatmap() -> None:
         }
 
         err_df = pd.DataFrame(err_data)
-        err_sa = SheetAnalyser(df=err_df)
+        err_sa = CsvAnalyser(df=err_df)
         err_sa.plot_correlation_heatmap()
 
 
@@ -89,7 +89,7 @@ def test_plot_histogram() -> None:
             "Jan": ["error", "data"],
         }
         err_df = pd.DataFrame(err_data)
-        err_sa = SheetAnalyser(df=err_df)
+        err_sa = CsvAnalyser(df=err_df)
 
         err_sa.plot_histogram(columns=["Jan", "Feb"])
 
@@ -114,7 +114,7 @@ def test_plot_business_units_over_years() -> None:
 
     with pytest.raises(ValueError):
         test_df = df.drop(columns=["Year"])
-        test_sa = SheetAnalyser(df=test_df)
+        test_sa = CsvAnalyser(df=test_df)
 
         test_sa.plot_business_units_over_years(
             business_col="Business Unit", business_unit="Software"
@@ -142,7 +142,7 @@ def test_plot_barchart_for_each_month() -> None:
 
     with pytest.raises(ValueError):
         test_df = df.drop(columns=["Year"])
-        test_sa = SheetAnalyser(df=test_df)
+        test_sa = CsvAnalyser(df=test_df)
         test_sa.plot_barchart_for_each_month(
             business_col="Business Unit", business_unit="Software", year=2024
         )
