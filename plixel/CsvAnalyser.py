@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 import os
 
 
@@ -14,6 +12,8 @@ class CsvAnalyser:
         The path to the CSV file.
     df : pd.DataFrame
         The DataFrame representation of the CSV file.
+    plotter : CsvPlotter
+        The plotter instance for visualization operations.
 
     Methods
     -------
@@ -26,14 +26,17 @@ class CsvAnalyser:
     filter_rows(column: str, value)
         Filters the rows of the DataFrame based on the given column and value.
 
-    plot_correlation()
-        Plots the correlation matrix of the DataFrame.
-
     merge_csv(file_path: str)
         Merges the DataFrame with another CSV file.
 
     merge_dataframes(df2: pd.DataFrame)
         Merges the DataFrame with another DataFrame.
+
+    plot_correlation()
+        Plots the correlation matrix of the DataFrame (delegates to plotter).
+
+    plot_column(column: str, plot_type: str)
+        Plots a specific column (delegates to plotter).
 
     ...
 
@@ -77,7 +80,11 @@ class CsvAnalyser:
             self._df = pd.read_csv(file_path)
             self.df = pd.read_csv(file_path)
         else:
-            raise ValueError("Must provide atleast one argument")
+            raise ValueError("Must provide at least one argument")
+
+        # Initialize the plotter for visualization operations
+        from .CsvPlotter import CsvPlotter
+        self.plotter = CsvPlotter(self)
 
     def get_trends(self, metric="mean"):
         """
@@ -149,6 +156,7 @@ class CsvAnalyser:
     def plot_correlation(self):
         """
         Plot the correlation matrix of the DataFrame.
+        Delegates to the CsvPlotter instance.
         Excludes null and N/A values
 
         Returns:
@@ -164,11 +172,7 @@ class CsvAnalyser:
         <class 'matplotlib.figure.Figure'>
 
         """
-        plt.figure(figsize=(10, 6))
-        sns.heatmap(self.df.corr(), annot=True)
-        plt.title("Correlation Matrix")
-
-        return plt.gcf()
+        return self.plotter.plot_correlation()
 
     def merge_csv(self, file_path: str):
         """
@@ -271,6 +275,8 @@ class CsvAnalyser:
 
     def plot_column(self, column: str, plot_type: str):
         """
+        Plot a specific column with the specified plot type.
+        Delegates to the CsvPlotter instance.
 
         Args:
             column (str): column name to plot
@@ -292,19 +298,4 @@ class CsvAnalyser:
         >>> type(plot)
         <class 'matplotlib.figure.Figure'>
         """
-
-        if column not in self.df.columns:
-            raise ValueError(f"Column '{column}' not found in the DataFrame")
-
-        if plot_type == "histogram":
-            plt.figure(figsize=(10, 6))
-            sns.histplot(self.df[column])
-            plt.title(f"Histogram of {column}")
-        elif plot_type == "boxplot":
-            plt.figure(figsize=(10, 6))
-            sns.boxplot(self.df[column])
-            plt.title(f"Boxplot of {column}")
-        else:
-            raise ValueError(f"Unsupported plot type: {plot_type}")
-
-        return plt.gcf()
+        return self.plotter.plot_column(column, plot_type)
